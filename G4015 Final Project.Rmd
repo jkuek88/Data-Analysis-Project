@@ -1,0 +1,250 @@
+---
+title: "G4015 Final Project"
+author: "Jonathan Kuek (jjk2214)"
+date: "13 December 2015"
+output: html_document
+---
+
+## Introduction
+
+Brief background - Genetically Modified (GM) Food has been around has been around since 1994 when a GM tomato was commericially marketed. Many other foodstuff has been genetically modified over the years to increase yield and consistency, eg corn, soybeans, cotton, tomatoes etc. Although we have been consuming GM food for many years both in the USA and around the world, there are very little countries that require GM food to be labelled before put on sale. Of course there have been some countries in Europe that have heavily resisited and even banned some GMO but by and large most countries in the world are consuming it directly or indirectly through farm animals.  
+
+Over the last few years, there has been an increasing amount of individuals around the world that are keen on having an organic diet that consists of no GMOs. There has also been increase calls to make GMO labelling compulsory like organic food. However, there is still little agreement on researchers on whether GMOs are safe and if there are side effects over the long run.  
+
+I am interested in people's willingness to eat GM Food and what affects that level of willingness. My main hypothesis is that controlling for income and education, the higher the trust they have in researchers, politicians and business leaders to do the right thing about GM food, the more willing they are to consume GM food.   
+
+This has powerful implications if there is a relationship found because we are able to apply this the GM food industry. For example, if there is a significant positive relationship between trust in politicians and willingness to consume GM food. We are able to know that if there is a push to market GM food (after it has gone through safety checks), we can get politicians to show up on television more and then reaffirm the public of its safety and this should have a positive impact on the willingness of adoption of GM food. A possible scenerio in the near future is that GM food must all be labelled before being put on sale and consumers become reluctant to purchase GM food due to fears.  
+
+My main dependent variable is EATGM, a question that asks respondents how willing they are to eat GM food if they know it is GM food. My main dependent variables are questions relating to how much the respondents trust the three different groups (researchers, politicians and business leaders) would act in the best interest of the country over self-interests when making policy related decisions about GM food. More details will be provided in the description section.
+
+## Description of Data Set and Variables
+
+Dataset: I will be using data from the General Social Survey 2006.  
+
+Description of Independent Variables, Dependent Variables and Control Variables:  
+
+Main Dependent Variable: EATGM - This variable asks the respondent which of the three statements best describe their views about eating food that have been genetically modified. The three responses are   
+1) I don't care if the food I eat has been genetically modified.   
+2) I am willing to eat gentically modified food, but would prefer unmodified food if they are available.  
+3) I will not eat food that I know has been genetically modified.  
+I have coded EATGM as a binary variable, 0 if the respondent is not willing to eat GM food, 1 if the respondent is willing to eat GM food.  
+
+Dependent Variables:  
+I have three depedent variables that I am interested in. All three represents one group, either researchers, politicians or business leaders, and the questions ask the respondents to what extent do they think that these respective groups would act in the best interests of our country over personal self-interests.  
+1) MEDBSTGM - This variable measures whether respondents think medical researchers would support what is in the best interest of the country as a whole or what serves their own interests when it comes to making policy recommendation about GM food. It has been recoded into 1 for own narrow interest and 5 for the best interests of the country.  
+2) POLBSTGM - This variable measures whether respondents think elected officials would support what is in the best interest of the country as a whole or what serves their own interests when it comes to making policy recommendation about GM food. It has been recoded into 1 for own narrow interest and 5 for the best interests of the country.  
+3) BIZBSTGM - This variable measures whether respondents think business leaders would support what is in the best interest of the country as a whole or what serves their own interests when it comes to making policy recommendation about GM food. It has been recoded into 1 for own narrow interest and 5 for the best interests of the country.  
+
+Control Variables:  
+1) GMMED + GMPOL + GMBIZ = GM_RISK - I have combined these three variables into one to measure the respondents view of how much everyone understands of the risks of GM food. Before combining them, I have recoded them to be 1 for not at all and 5 for very well. When combined together this would yield a scale from 3 to 15 with 3 being not at all and 15 for very well. This is a control variable for understanding of the risks for GM food. This way whatever beliefs the respondents have about the individual groups above and whether they place public interest over self interest, the level of understanding of risks of GMO is controlled for.  
+2) REALRINC - This variable measures the respondents' real income level based on 25 different values that do not have a constant interval between them. I have included this as a control variable because I believe the higher the income one has, the more disposable income one will have and this will allow one to have a organic diet. Organic food is more costly and I am guessing that respondents' with lower income level will not have too much of a choice whether to consume GM food.  
+3) EDUC - This variable measures the respondents' education levels based on a wide range from no formal schooling to 8 years in college. The higher the recorded number, the higher the number of years of formal school the respondents has. I have also added this in as a control variable because I believe that an increase in formal education will make respondents more likely to be interested in their own health and wellbeing. This would make them more likely to want to consume organic food over GM food if there is news on GM food having negative impact on health.  
+
+Initial hypothesis: My initial hypothesis is that the more respondents believe that medical researchers, elected officials and business leaders would support what is in the best interest of the country as a whole over their own interests when it comes to making policy recommendation about GM food, the more willing the respondents are to consume GM food.  
+
+The logic behind this is that these three groups of individuals are the primary driving forces behind GM food and each are influential in their own right with regards to GM food and bringing GM food to the consumers' table. A higher level of trust in these groups that they will put the best interest of the country and by extension its people first over self interest would imply that these groups would not commercially market any GM food that is harmful to individuals and thus only safe GM food is allowed for sale and it does not matter whether consumers consume Organic food or GM food because they are similarly non-harmful to humans.  
+
+I would expect that all three groups would most probably have the interest of the country at heart over personal self-interest because GM food affects the whole country and if there are negative health implications and yet they proceed with selling the GM food the would be harming the whole country and putting the future of the country at risk, ie rising health care costs to tackle the negative health impacts.  
+
+```{r}
+# Preparation of the dataset
+library(devtools)
+library(QMSS)
+
+gss <- read.csv("~/Desktop/Columbia Fall Courses/G4015 Data Analysis/Final Project/R Codes/GSS.2006.csv.xls")
+sub <- gss[, c("eatgm", "gmmed", "gmpol", "gmbiz", "medbstgm", "polbstgm", "bizbstgm", "realrinc", "educ")]
+sub <- na.omit(sub)
+
+sub$eatgm_binary = ifelse(sub$eatgm==3, 0, 1) ## we want to look at willing to eat GM food versus not willing to eat GM food
+sub$gmmed = 6 - sub$gmmed
+sub$gmpol = 6 - sub$gmpol
+sub$gmbiz = 6- sub$gmbiz
+sub$medbstgm = 6 - sub$medbstgm
+sub$polbstgm = 6 - sub$polbstgm
+sub$bizbstgm = 6 - sub$bizbstgm
+
+sub$gm_risk <- with(sub, gmmed + gmpol + gmbiz) # creating a new variable on how much everyone understands of the risks of GM food
+```
+I have dropped all the variables with missing data in them, this has resulted in a drop from 4510 observations to 519 observations.  
+
+## Descriptive Statistics
+
+Over here in this section I have included all the various descriptive statistics for all the dependent, independent and control variables.  
+
+####EATGM
+
+```{r}
+table(sub$eatgm_binary)
+summary(sub$eatgm_binary)
+sd(sub$eatgm_binary)
+```
+We can see from the above statistics that 146 people will not eat food that they know have been genetically modified while 373 people would eat GM food. Since its a binary variable, only the mean and standard deviation are of interest to us here. The mean is 0.7187 which is greater than 0.5 and indicates that more than half of the respondents would consume GM food. The standard deviation is a measure of har far a typical individual will be away from the mean value, and in this case is 0.45. That being said the minimum value is 0 and the maximum is 1.  
+
+####MEDBSTGM
+```{r}
+table(sub$medbstgm)
+summary(sub$medbstgm)
+sd(sub$medbstgm)
+```
+We can see from this variable here that more than 50% of the respondents trust that medical researchers would  act in the best interest of the country or one category below that. The median is 4 and we can see from the 1st and 3rd quartile that at least 75% of the respondents responded 3 and above. The mean is 3.827 while standard deviation is 1.135 meaning most of the responses fall in the top half.  
+
+####POLBSTGM
+```{r}
+table(sub$polbstgm)
+summary(sub$polbstgm)
+sd(sub$polbstgm)
+```
+Quite suprisingly, looking at the table, more than half of the respondents responded 1(self interest) to 3(average) which means that they do not trust their elected officials with regards to GM food. The mean is 2.509 and the standard deviation is 1.16, this distribution has a positive skewness.  
+
+####BIZBSTGM
+```{r}
+table(sub$bizbstgm)
+summary(sub$bizbstgm)
+sd(sub$bizbstgm)
+```
+Not too surprisingly a large majority of the respondents responded 1(self interest) to 3(average) because they mostly believe that business leaders would prioritise self interest over interest of country. This is in line with my initial expecations. The mean is 2.037 and the standard deviation is 0.97 which means that the observations are pretty much clustered around 1 to 3.  
+
+####GMMED
+```{r}
+table(sub$gmmed)
+summary(sub$eatgm)
+sd(sub$eatgm)
+```
+Most of the responses were in the range of 3 (average) to 5 (very well). This makes sense as medical researchers who are the ones conducting research on GMO should be the ones in the best position to understand the risks of GMO food through their research and experiments.  
+
+####GMPOL
+```{r}
+table(sub$gmpol)
+summary(sub$gmpol)
+sd(sub$gmpol)
+```
+Most of the responses are in the range of 1 (Not at all) to 3 (Average) which is also not too surprising since politicians are rather busy individuals who have to look into a wide variety of issues with GMO just being one part of their jobs. Many a times I would guess that they would be briefed by a subject matter expert on GMO before they debate about GMO so its natural that they are not considered to be experts.
+
+####GMBIZ
+```{r}
+table(sub$gmbiz)
+summary(sub$gmbiz)
+sd(sub$gmbiz)
+```
+Similarly for business leaders, most of the responses are in the range of 1 (Not at all) to 3 (Average). Surprisingly, there are more people who responded 4 and 5 for business leaders compared to elected officials. I would expect business leaders to be busy individuals that would not understand GMO completely but perhaps we could think of it as business leaders who are influential about GMO would most likely be in the food industry and it makes sense for business leaders in these industries to have a more solid understanding of GMO than business leaders.  
+
+Of course this is just the public's opinion and it could be due to better self marketing by the business leaders compared to the politicians.  
+
+####GM_RISK
+```{r}
+table(sub$gm_risk)
+summary(sub$gm_risk)
+sd(sub$gm_risk)
+```
+This is a recoded variable combining the public opinion about the three groups' knowledge of the risk of GMO into one variable to use as a control variable in this regression analysis. Most of the responses are in the middle with more on the lower end of the scale than the upper end.  
+
+####REALRINC
+```{r}
+table(sub$realrinc)
+summary(sub$realrinc)
+sd(sub$realrinc)
+```
+Most of the respondents fall under a category in the middle of the 25 different categories.  
+
+####EDUC
+```{r}
+table(sub$educ)
+summary(sub$educ)
+sd(sub$educ)
+```
+We can see here that most of our respondents have at least finished high school (12 years of formal education) or more.  
+
+## Initial Models
+
+I have considered combining the three independent variables together to form one variable like GM_RISK but look at the descriptive statistics above I believe there is enough variation within each group to warrant them being seperate dependent variable.  
+
+```{r}
+lm1 = lm(eatgm_binary ~ medbstgm + polbstgm + bizbstgm, sub)
+summary(lm1)
+```
+This is a linear probability model using just the dependent variable and the three independent variables.
+
+For every category increase in believing that medical researchers would act in the best interest of the country over self interest, respondents are 8.7 percentage points more likely to be willing to eat GM food on average, net of other variables. The p-value is less than 0.001 which means that the medbstgm variable is statistically significant at the 99.9% confidence level. The null hypothesis here is that the medbstgm variable is equals to zero, so a p value of less than 0.001 indicates that there is a less than 0.1% chance that we would get a medbstgm variable as positive as 0.08722. This kind of makes sense since respondents assume that medical researchers should know the most about GMO and thus if they beleive that medical researchers are acting in the best interest of the country over self interest people would be willing to consume GM food.
+
+For every category increase in believing that elected officials would act in the best interest of the country over self interest, respondents are 3.3 percentage points more likely to be willing to eat GM food on average, net of other variables. The p-value is less than 0.1 but greater than 0.05 which means that the polbstgm variable is not statistically significant at the 95% confidence level. The null hypothesis here is that the polbstgm variable is equals to zero, so a p value of 0.0829 indicates that there is a 8.29% chance that we would get a polbstgm variable as positive as 0.03288. This also makes sense and is in line with initial expectations.
+
+For every category increase in believing that business leaders would act in the best interest of the country over self interest, respondents are 1.4 percentage points less likely to be willing to eat GM food on average, net of other variables. The p-value is 0.5386 which means that the bizbstgm variable is not statistically significant at the 99.9% confidence level. The null hypothesis here is that the bizbstgm variable is equals to zero, so a p value of 0.5348 indicates that there is a 53.48% chance that we would get a bizbstgm variable as negative as -0.01364. This results does not really make sense to me because it is counter intuitive, it is like saying the more you trust someone, the less likely you are to be willing to do an activity that this trusted person says is safe. Thankfully this is not statistically significant so the variable should be treated as zero.
+
+Now that I have conducted a simple LPM analysis with the main dependent variable and three main independent variable, I am interested to see if the magnitude of the coefficients will change after adding in the three control variables.  
+
+```{r}
+lm2 = lm(eatgm_binary ~ gm_risk + medbstgm + polbstgm + bizbstgm + realrinc + educ, sub)
+summary(lm2)
+```
+This is a linear probability model similar to the one above but having added the three control variables. We can see here that there are only two variables that are at least significant at the 95% confidence level. The independent variable medbstgm and control variable gm_risk.  
+
+There has been changes to all three independent variable's coefficients, but the signs have all remained the same. The polbstgm variable is now not statistically significant and the p value for bizbstgm has decreased relative to the first LPM.  
+
+Between LPM1 and this LPM2 model, I would think that LPM2 is better because the control variables have been accounted for and the results are quite similar to each other. However, the problem with a LPM is that it's predicted probabilities are not bounded by 0 and 1 and the error terms are binomially distributed which violates the error terms are normally distributed assumption. This may cause the p-values and t-tests for individual significance to be invalid. Therefore, I would logically think that if I am to keep the dependent variable as a binary variable, it might make more sense to proceed onto a logit regression.  
+
+```{r}
+logit1 = glm(eatgm_binary ~ gm_risk + medbstgm + polbstgm + bizbstgm + realrinc + educ, sub, family = binomial)
+summary(logit1)
+exp(coef(logit1))
+```
+This is a logit regression with the same variables as model lm2 above. 
+
+For every category increase in believing that medical researchers would act in the best interest of the country over self interest, respondents increase their logit by 0.3711 of willing to eat GM food on average, net of other variables.  
+
+I have also exponentiated the coefficients to derive the odds-ratio. For every category increase in believing that medical researchers would act in the best interest of the country over self interest, respondents would increase their odds of willing to eat GM food by 1.45, controlling for other variables. The odds of being willing to eat GM food goes up by 45% for each category increase in believing that medical researchers would act in the best interest of the country over self interest.  
+
+Looking at the odds-ratio for polbstgm and bizbstgm in addition to medbstgm, I would say that the odds-ratio for medbstgm and polbstgm support my initial hypothesis but bizbstgm does not. This is similar to the findings of the LPM models above.  
+￼
+This leads me to wonder if I should consider another model because the dependent variable is only binary because I coded it to be so. The actual values are not exacly asking the respondents whether they are willing to eat GMO in a Yes/No manner.  
+
+## Final Model
+
+Therefore, after the basic models above, one could also hypothesize that we can use ordinal logistic regression for the dependent variables EATGM.  
+
+The main dependent variable EATGM was structured in such a way that respondents had three options, however, looking at the options mentioned above, it can also be quite clear that there might not be a linear relationship between the three answers and the gap between 1(I don't care if the food I eat has been genetically modified) and 2(I am willing to eat GM food but would prefer non GM food if its available) and 2 and 3 (I am not willing to consume GM food) are different.  
+
+The main advatage of an ordinal logistic regression is that it does not make the assumption that the spacing between categories is constant.  
+```{r}
+library(VGAM)
+sub$eatgm <- factor(sub$eatgm,
+                    levels = 3:1,
+                    labels = c("Unwilling to eat", "Willing to eat but prefer not to", "Don't care and willing to eat"),
+                    ordered = TRUE)
+Tab(sub$eatgm)
+
+vglm1 <- vglm(eatgm ~ gm_risk + medbstgm + polbstgm + bizbstgm + realrinc + educ, data = sub, family = propodds)
+summary(vglm1)
+```
+Looking at the ordinal regression above,  
+For every category increase in believing that medical researchers would act in the best interest of the country over self interest, their logit increases by 0.3342 that they will be in a higher category of willingness to eat GM food, as opposed to a lower category, net of other factors.  
+For every category increase in believing that elected officials would act in the best interest of the country over self interest, their logit increases by 0.09314 that they will be in a higher category of willingness to eat GM food, as opposed to a lower category, net of other factors.  
+For every category increase in believing that medical researchers would act in the best interest of the country over self interest, their logit decreases by 0.06064 that they will be in a higher category of willingness to eat GM food, as opposed to a lower category, net of other factors.  
+
+The results here are quite similar to the logit regression's results above in terms of which variable being statiscally significant and the signs of the three main independent variables are similar.  
+
+```{r}
+vglm2 <- vglm(eatgm ~ gm_risk + medbstgm + polbstgm + bizbstgm + realrinc + educ, data = sub, family = cumulative(reverse = TRUE))
+summary(vglm2)
+
+propOddsTest(vglm1, vglm2)
+```
+Looking at the results of the propOddsTest, we can conclude that we are unable to reject the null hypothesis that all the slopes are the same. This means that there is no violation of the prop odds assumption and we can use the ordinal logistic regression for the purpose of our analysis.
+
+```{r}
+coef_vglm1 <- coef(summary(vglm1))
+coef_vglm1 <- data.frame(coef_vglm1)
+coef_vglm1[, "p.value"] <- 2 * (1- pnorm(abs(coef_vglm1[, "z.value"]))) 
+coef_vglm1$odds.ratio <- exp(coef_vglm1[, "Estimate"])
+coef_vglm1
+```
+Looking at the odds-ratio for the ordinal logsitic regression, we can see that they are quite similar to the one in the logistic regression. However, since the ordinal logistic regression here does not violate the assumption of similar slopes, I feel that we should use the results from the ordinal logistic regression over the logistic regression. Furthermore it makes more sense as the dependent variable was not coded as a binary to start with and the gaps between each level of response might be different.  
+
+## Conclusion
+
+Looking at the above analysis, I would conclude that it is better to use the ordinal logistic regression model.  
+
+My initial hypothesis is that for all three groups, as the public opinion increases on the fact that they are more likely to act on the best interest of the country over self-interest, the more the public is willing to consume GM food. Looking at the results across all the model, it has been partially supported specially for the medical researchers group (because it is the only one that is statistically significant) and to some extent the elected officials. The results of the business leaders were quite different from what I intially imagined because the sign is different.  
+
+I wished I could have more data and different questions to run my analysis on GM food because those in the GSS are still rather limited. Also it would be nice to have more recent data because I feel that there has been increasing amount of emphasis on the "benefits" of eating organic food over GM food over the last decade. Personally I feel that we would have to wait till a day where GM food needs to be labelled before this issue becomes something that more people would talk and debate about nationally in the USA.
+
+Other thoughts - I will still be trying to write my thesis on the forecasting model, due to time contraints and me wanting a more polished paper I decided not to write it for this paper. I have done a small forecasting analysis using my dataset seperately. I still need to figure out some more codes for the purpose of the thesis and try out different varieties of the models over my whole data set. 
